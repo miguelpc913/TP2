@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import {Gasto, GastoData, GastoResponse} from '../models/gasto'
-import { Paginacion } from '../models/paginacion';
 import {HttpClient , HttpHeaders } from "@angular/common/http"; 
 import {Observable} from 'rxjs';
 import { Categoria } from '../models/categoria';
