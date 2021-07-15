@@ -27,5 +27,6 @@
     (editarGasto)="EditarGasto($event)">
 </app-gasto-item>
 
+<app-error-modal *ngIf="error" [error]="error" (closeErrorModal)="closeErrorModal()"></app-error-modal>
 
 <div class="lds-dual-ring" *ngIf="loadingGastos || loadingCategorias"></div>

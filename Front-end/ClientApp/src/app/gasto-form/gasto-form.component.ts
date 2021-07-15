@@ -23,6 +23,7 @@ export class GastoFormComponent implements OnInit {
   nuevaCategoriaString : string = "Nueva Categoria";
   nuevaCategoriaObject : Categoria = {Id:  0 , tipo: this.nuevaCategoriaString};
   createGasto : boolean = false;
+  error;
   datePattern : RegExp = /^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/;
   loading : boolean = false;
 
@@ -53,7 +54,10 @@ export class GastoFormComponent implements OnInit {
         this.categorias = response;
         this.categorias.push(this.nuevaCategoriaObject);
       },
-      error => console.log(error) , 
+      e => {
+        this.error = e
+        this.loading = false
+      } , 
       () => this.loading = false
     )
   }
@@ -67,7 +71,10 @@ export class GastoFormComponent implements OnInit {
       if(this.createGasto){
         this.GastoServ.addGasto(gastoData).subscribe( 
           () =>{} ,
-          error => console.log(error),
+          e => {
+            this.error = e
+            this.loading = false
+          },
           () =>{
             this.router.navigate(["/"])
             this.loading = false
@@ -75,13 +82,20 @@ export class GastoFormComponent implements OnInit {
       }else{
         this.GastoServ.updateGasto(gastoData , this.gasto.id).subscribe( 
           () => {},
-          error => console.log(error),
+          e => {
+            this.error = e
+            this.loading = false
+          },
           () => {
             this.editarGasto.emit()
             this.loading = false
           });
       }
     }
+  }
+
+  private closeErrorModal(){
+    this.error = undefined;
   }
 
   private checkFormValidity(gastoData : GastoData) : boolean{

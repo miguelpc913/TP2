@@ -10,6 +10,7 @@ import { HomeComponent } from './home/home.component';
 import { GastosComponent } from './gastos/gastos.component';
 import { GastoItemComponent } from './gasto-item/gasto-item.component';
 import { GastoFormComponent } from './gasto-form/gasto-form.component';
+import { ErrorModalComponent } from './error-modal/error-modal.component';
 
 
 @NgModule({
@@ -19,7 +20,8 @@ import { GastoFormComponent } from './gasto-form/gasto-form.component';
     HomeComponent,
     GastosComponent,
     GastoItemComponent,
-    GastoFormComponent
+    GastoFormComponent,
+    ErrorModalComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

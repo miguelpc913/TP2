@@ -19,6 +19,8 @@ export class GastosComponent implements OnInit {
   private categorias : Categoria[];
   private loadingGastos : boolean = false;
   private loadingCategorias : boolean = false;
+  private displayErrorModal : boolean = false;
+  private error;
   constructor(public gastosService : GastosService) { }
 
   ngOnInit() {
@@ -42,7 +44,11 @@ export class GastosComponent implements OnInit {
         this.gastos = this.gastosService.createObjects(response);
         this.determineTotal()
       },
-      error => console.log(error),
+      e => {
+        this.error = e
+        this.loadingCategorias = false
+        this.loadingGastos = false
+      },
       () => this.loadingGastos = false
     )
     this.filtrado = categoriaQuery !== "" && descriptionQuery !== "" ? true : false;
@@ -53,7 +59,7 @@ export class GastosComponent implements OnInit {
     this.loadingGastos = true
     this.gastosService.borrarGastoPorId(gastoId).subscribe(
       () => this.initState(),
-      error => console.log(error)
+      e => this.error = e,
     )
   }
 
@@ -65,7 +71,11 @@ export class GastosComponent implements OnInit {
         this.gastos = this.gastosService.createObjects(response);
         this.determineTotal()
       },
-      error => console.log(error) ,
+      e => {
+        this.error = e
+        this.loadingCategorias = false
+        this.loadingGastos = false
+      },
       () =>  this.loadingGastos = false
     )
   }
@@ -77,7 +87,11 @@ export class GastosComponent implements OnInit {
         this.categorias = response;
         this.categorias.push( {tipo : this.busquedaPorCategoriaDefault , Id: 0 })
       },
-      error => console.log(error) , 
+      e => {
+        this.error = e
+        this.loadingCategorias = false
+        this.loadingGastos = false
+      },
       () => this.loadingCategorias = false,
     )
     
@@ -85,12 +99,12 @@ export class GastosComponent implements OnInit {
 
   EditarGasto(){
     this.initState()
-    scroll({
-      top: 0,
-      behavior: "smooth"
-    });
+    scroll({ top: 0, behavior: "smooth" });
   }
 
+  private closeErrorModal(){
+    this.error = undefined;
+  }
 
   private determineTotal(){
     this.deudaTotal = this.calcularDeudaTotal();

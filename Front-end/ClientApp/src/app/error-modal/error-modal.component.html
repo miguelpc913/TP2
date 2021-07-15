@@ -1,0 +1,9 @@
+
+<div class="error-modal">
+    <div class="error-wrapper">
+        <a  class="close" (click)="closeModal()"></a>
+        <h1>Error</h1>
+        <p>{{error.message}}</p>
+    </div>
+</div>
+<div class="error-backdrop" (click)="closeModal()"></div>
