@@ -15,25 +15,25 @@ export class GastosService {
 
   public addGasto(gastoData : GastoData) : Observable<void>{
     const headers = {'Content-type' : 'application/json' }
-    return this.http.post<void> (environment.apiUrl , gastoData , {headers})
+    return this.http.post<void> (environment.apiUrlGastos , gastoData , {headers})
   }
 
   public borrarGastoPorId(id : number) : Observable<void>{
-    return this.http.delete<void> (environment.apiUrl  + id);
+    return this.http.delete<void> (environment.apiUrlGastos  + id);
   }
 
   public updateGasto(gastoData : GastoData , gastoId : number){
     const headers = {'Content-type' : 'application/json' }
     const gasto : GastoResponse = { id : gastoId, ...gastoData }
-    return this.http.put<boolean> (environment.apiUrl  + gastoId , gasto);
+    return this.http.put<boolean> (environment.apiUrlGastos  + gastoId , gasto);
   }
 
   public getGastos() : Observable<GastoResponse[]>{
-    return this.http.get<GastoResponse[]> (environment.apiUrl )
+    return this.http.get<GastoResponse[]> (environment.apiUrlGastos )
   }
   
   public getCurrentCategorias() : Observable<Categoria[]>{
-    return this.http.get<Categoria[]> (environment.apiUrl  + "\categorias");
+    return this.http.get<Categoria[]> (environment.apiUrlGastos  + "\categorias");
   }
 
   public busqueda(terminoDescripcion: string , terminoCategoria : string) : Observable<GastoResponse[]>{
@@ -41,7 +41,7 @@ export class GastosService {
     queryParameter += terminoDescripcion !== "" ? `description=${terminoDescripcion}` : "";
     queryParameter += terminoDescripcion !== "" && terminoCategoria !== "" ? "&" : "";
     queryParameter += terminoCategoria !== "" ? `categoria=${terminoCategoria}` : "";
-    return this.http.get<GastoResponse[]> (environment.apiUrl  + `buscar${queryParameter}`);
+    return this.http.get<GastoResponse[]> (environment.apiUrlGastos  + `buscar${queryParameter}`);
   }
 
 

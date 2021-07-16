@@ -30,7 +30,7 @@
 
     <div *ngIf="gasto.getCompartidoEntre() > 0">
         <small class="text-muted" *ngIf="gasto.getCompartidoEntre() === 1">El gasto se compartio con una sola persona.</small>
-        <small class="text-muted"*ngIf="gasto.getCompartidoEntre() > 1">El gasto se compartio con {{gasto.getCompartidoEntre()}} personas.</small>
+        <small class="text-muted" *ngIf="gasto.getCompartidoEntre() > 1">El gasto se compartio con {{gasto.getCompartidoEntre()}} personas.</small>
     </div>
     <div class="mt-4" [ngClass]="{'activeForm': enableEdit , 'disabledForm': !enableEdit}">
         <app-gasto-form [gasto]="gasto" (editarGasto)="EditarGasto($event)">

@@ -1,0 +1,4 @@
+.button-and-nav{
+    display: flex;
+    justify-content: space-around;
+}

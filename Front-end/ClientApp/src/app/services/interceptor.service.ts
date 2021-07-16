@@ -10,12 +10,12 @@ export class InterceptorService implements HttpInterceptor {
   constructor() { }
 
   intercept(req: HttpRequest<any> , next: HttpHandler) : Observable<HttpEvent<any>>{
-    let token = JSON.parse(localStorage.getItem('token'));
-    if(token === ""){
+    let user = JSON.parse(localStorage.getItem('user'));
+    if(!user){
       return next.handle(req);
     }
     const header = req.clone({
-      headers: req.headers.set('Authorization' , `Bearer ${token}` )
+      headers: req.headers.set('Authorization' , `Bearer ${user['token']}` )
     })
     return next.handle(header)
   }
