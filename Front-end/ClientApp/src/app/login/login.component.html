@@ -1,1 +1,3 @@
 <app-user-form isLogin [isLogin]="true"></app-user-form>
+
+<app-error-modal *ngIf="redirectByUnauthorized" [errorTitle]="unauthorizedTitle" [errorMessage]="unauthorizedMessage" (closeErrorModal)="closeErrorModal()"></app-error-modal>

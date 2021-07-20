@@ -1,61 +1,53 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System;
 using Microsoft.Extensions.Configuration;
 using Persistencia.Models;
+using System.Text.Json;
+using WebApi.Services;
+using Persistencia;
 
 namespace WebApi.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class LoginController : ControllerBase
     {
-
         private readonly IConfiguration config;
-        public LoginController(IConfiguration configuration){
+        private readonly GastoDbContext _context;
+        private TokenServices tokenServices;
+
+        public LoginController(IConfiguration configuration , GastoDbContext context){
             config = configuration;
+            _context = context;
+            tokenServices = new TokenServices(config);
         }
 
-        [HttpPost]
-        [AllowAnonymous]
-        public IActionResult Login([FromBody] User usuario){
-            IActionResult response = Unauthorized();
-            if(Autenticar(usuario)){
-                var tokenString = "xxxxx";
-                var user = new User();
-                user.Nombre = tokenString;
-                user.Password = "";
-                response =Ok( new {token = GenerarToken(user)} );
-            }
-
-            return response;
-        }
-
-        public bool Autenticar(User usuario){
+        [HttpGet("ValidateToken")]
+        public bool isTokenValid()
+        {
+            var user = tokenServices.findUserByToken(Request , _context);
+            if(user == null || tokenServices.tokenInvalid(user.Token)) return false;
+           
             return true;
         }
-
-        private string GenerarToken(User usuario){
-            var securityKey=new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SecretThing!@#$%^&*()"));
-            var credentials=new SigningCredentials(securityKey,SecurityAlgorithms.HmacSha256);
-            var claims=new []
-            {
-                new Claim(JwtRegisteredClaimNames.Sub,usuario.Nombre),
-            };
-            var token=new JwtSecurityToken( 
-                issuer: "http://localhost:5000",
-                audience:"http://localhost:4200",
-                claims:claims,
-                expires: DateTime.Now.AddMinutes(30),
-                signingCredentials:credentials
-            );
-            return new JwtSecurityTokenHandler().WriteToken(token);
+ 
+ 
+        [AllowAnonymous]
+        [HttpPost("authenticate")]
+        public IActionResult Login([FromBody] User userCred)
+        {
             
+            User user = _context.Users.FirstOrDefault(user => user.Username.Equals(userCred.Username));
+
+            if( user == null || !BCrypt.Net.BCrypt.Verify(userCred.Password , user.Password)) return Unauthorized();
+
+            var token = tokenServices.GenerarToken(userCred);     
+            user.Token = token;
+            token = JsonSerializer.Serialize(token); 
+            _context.SaveChanges();
+            
+            return Ok(token);
         }
 
     }

@@ -30,28 +30,30 @@ namespace WebApi.Services
           return OldGasto;
         }
 
-        public async Task<ActionResult<IEnumerable<Gasto>>> SearchCategoryAndDescription(string categoria, string description){
+        public IEnumerable<Gasto> SearchCategoryAndDescription(string categoria, string description , User user){
             formatSearch(categoria, description);
             if (!String.IsNullOrEmpty(description) && !String.IsNullOrEmpty(categoria))
             {
-                return await _context.Gastos.Where(
-                    gasto => gasto.categoria.Tipo.Equals(categoria) && gasto.Description.Contains(description)
-                    ).ToListAsync();
+                return user.Gastos.Where(
+                    gasto => gasto.categoria.Tipo.ToLower().Equals(categoria) && gasto.Description.ToLower().Contains(description)
+                    );
             }
             else if (!String.IsNullOrEmpty(description))
             {
-                return await _context.Gastos.Where(gasto => gasto.Description.Contains(description)).ToListAsync();
+                return user.Gastos.Where(gasto => gasto.Description.ToLower().Contains(description));
             }
             else if (!String.IsNullOrEmpty(categoria))
             {
-                return await _context.Gastos.Where(gasto => gasto.categoria.Tipo.Equals(categoria)).ToListAsync();
+                return user.Gastos.Where(gasto => gasto.categoria.Tipo.ToLower().Equals(categoria));
             }
-            return await _context.Gastos.ToListAsync();
+            return user.Gastos;
         }
 
         private void formatSearch(string categoria, string description){
             if(!String.IsNullOrEmpty(categoria)){ categoria =  categoria.ToLower().Trim(); };
             if(!String.IsNullOrEmpty(description)){ description = description.ToLower().Trim(); };
         }
+
+
     }
 }

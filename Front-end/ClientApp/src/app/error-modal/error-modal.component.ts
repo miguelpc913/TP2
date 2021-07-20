@@ -1,4 +1,5 @@
 import { Component, OnInit , Input,  Output , EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
 import { emit } from 'process';
 @Component({
   selector: 'app-error-modal',
@@ -7,12 +8,16 @@ import { emit } from 'process';
 })
 export class ErrorModalComponent implements OnInit {
 
-  @Input () error;
+  @Input () errorMessage;
+  @Input () errorTitle;
+  @Input () errorStatus;
   @Output () closeErrorModal = new EventEmitter();
-  constructor() { }
+  constructor( private router : Router) { }
 
   ngOnInit() {
-    console.log(this.error)
+    if(this.errorStatus === 401){
+      this.router.navigate(["/"] , { queryParams: { cause : "unauthorized"}})
+    }
   }
 
   private closeModal (){

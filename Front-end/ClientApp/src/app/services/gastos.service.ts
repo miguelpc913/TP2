@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {Gasto, GastoData, GastoResponse} from '../models/gasto'
-import {HttpClient , HttpHeaders } from "@angular/common/http"; 
-import {Observable} from 'rxjs';
+import { HttpClient } from "@angular/common/http"; 
+import { Observable } from 'rxjs';
 import { Categoria } from '../models/categoria';
 import { environment } from 'src/environments/environment';
 

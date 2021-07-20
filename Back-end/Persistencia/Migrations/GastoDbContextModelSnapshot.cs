@@ -27,14 +27,15 @@ namespace Persistencia.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Tipo")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Tipo")
-                        .IsUnique()
-                        .HasFilter("[Tipo] IS NOT NULL");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Categoria");
                 });
@@ -65,23 +66,77 @@ namespace Persistencia.Migrations
                     b.Property<int>("Price")
                         .HasColumnType("int");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("categoriaId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("categoriaId");
 
                     b.ToTable("Gastos");
                 });
 
+            modelBuilder.Entity("Persistencia.Models.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Persistencia.Models.Categoria", b =>
+                {
+                    b.HasOne("Persistencia.Models.User", null)
+                        .WithMany("Categorias")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Persistencia.Models.Gasto", b =>
                 {
+                    b.HasOne("Persistencia.Models.User", null)
+                        .WithMany("Gastos")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Persistencia.Models.Categoria", "categoria")
                         .WithMany()
                         .HasForeignKey("categoriaId");
 
                     b.Navigation("categoria");
+                });
+
+            modelBuilder.Entity("Persistencia.Models.User", b =>
+                {
+                    b.Navigation("Categorias");
+
+                    b.Navigation("Gastos");
                 });
 #pragma warning restore 612, 618
         }

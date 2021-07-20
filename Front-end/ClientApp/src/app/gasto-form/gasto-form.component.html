@@ -75,4 +75,4 @@
 </form>
 
 <div class="lds-dual-ring" *ngIf="loading"></div>
-<app-error-modal *ngIf="error" [error]="error" (closeErrorModal)="closeErrorModal()"></app-error-modal>
+<app-error-modal *ngIf="error" [errorTitle]="Error" [errorMessage]="error.message" [errorStatus]="error.status" (closeErrorModal)="closeErrorModal()"></app-error-modal>

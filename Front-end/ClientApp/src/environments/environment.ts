@@ -5,7 +5,8 @@
 export const environment = {
   production: false,
   apiUrlGastos: 'http://localhost:5000/gastos/',
-  apiUrlAuth: 'http://localhost:5000/gastos/'
+  apiUrlLogin: 'http://localhost:5000/login/',
+  apiUrlSignUp: 'http://localhost:5000/sign-up/',
 };
 
 /*

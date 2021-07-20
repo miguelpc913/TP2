@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -5,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Persistencia;
 using Persistencia.Models;
 using WebApi.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
 
 namespace WebApi.Controllers
 {
@@ -14,33 +17,43 @@ namespace WebApi.Controllers
     {
         private readonly GastoDbContext _context;
         private GastoService gastoService;
+        private TokenServices tokenServices;
         private CategoriaService categoriaService;
-
-        public GastosController(GastoDbContext context)
+        public GastosController(IConfiguration config , GastoDbContext context)
         {
             _context = context;
             gastoService = new GastoService(context);
             categoriaService  = new CategoriaService(context);
+            tokenServices  = new TokenServices(config);
         }
 
         // GET: gastos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Gasto>>> GetGastos()
+        [Authorize]
+        public IActionResult GetGastos()
         {
-            return await _context.Gastos.ToListAsync();
+            User user = tokenServices.findUserByToken(Request , _context);
+            if (user is null) return Unauthorized();
+            return Ok(user.Gastos);
         }
 
         //GET: gastos/categorias
+        [Authorize]
         [HttpGet("categorias")]
-        public async Task<ActionResult<IEnumerable<Categoria>>> GetCategoria()
+        public IActionResult GetCategoria()
         {
-            return await _context.Categoria.ToListAsync();
+            User user = tokenServices.findUserByToken(Request, _context);
+            if (user is null) return Unauthorized();
+            return Ok(user.Categorias);
         }
 
         [HttpGet("buscar")]
-        public async Task<ActionResult<IEnumerable<Gasto>>> GetGastoCategoria(string categoria, string description)
+        [Authorize]
+        public IActionResult GetGastoCategoria(string categoria, string description)
         {
-            return await gastoService.SearchCategoryAndDescription(categoria, description);
+            User user = tokenServices.findUserByToken(Request, _context);
+            if (user is null) return Unauthorized();
+            return  Ok(gastoService.SearchCategoryAndDescription(categoria, description , user).ToList());
         }
 
 
@@ -58,14 +71,20 @@ namespace WebApi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutGasto(int id, Gasto gasto)
         {
+            User user = tokenServices.findUserByTokenNoTracking(Request, _context);
+    
+            if (user == null) Unauthorized();
+            gasto.UserId = user.Id;
+            gasto.categoria.UserId = user.Id;
             if (gastoService.isInvalidGasto(gasto)) return BadRequest();
-            categoriaService.CategoriaCreateOrFind(gasto);
+            categoriaService.CategoriaCreateOrFind(gasto , user);
             _context.Entry(gasto).State = EntityState.Modified;
             try
             {
                 Gasto OldGasto =  gastoService.SearchForOldGasto(gasto);
                 await _context.SaveChangesAsync();
-                if(categoriaService.removeCategoriaIfUnusedAfterUpdate(OldGasto , gasto)) await _context.SaveChangesAsync();
+                User userUpdated = tokenServices.findUserByTokenNoTracking(Request, _context);
+                if(categoriaService.removeCategoriaIfUnusedAfterUpdate(OldGasto , gasto , userUpdated)) await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -84,12 +103,17 @@ namespace WebApi.Controllers
 
         // POST: gastos
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<Gasto>> PostGasto(Gasto gasto)
         {
             if(gastoService.isInvalidGasto(gasto)) return BadRequest();
-            categoriaService.CategoriaCreateOrFind(gasto);
+            User user = tokenServices.findUserByToken(Request, _context);
+            if (user == null) return Unauthorized();
+            
+            categoriaService.CategoriaCreateOrFind(gasto , user);
 
             _context.Gastos.Add(gasto);
+            user.Gastos.Add(gasto);
             await _context.SaveChangesAsync();
             return CreatedAtAction("GetGasto", new { id = gasto.Id }, gasto);
         }
@@ -100,8 +124,9 @@ namespace WebApi.Controllers
         {
             Gasto gasto = await _context.Gastos.FindAsync(id);
             if (gasto == null)  return NotFound();
-            
-            categoriaService.deleteIfUnused(gasto);
+            User user = tokenServices.findUserByToken(Request, _context);
+            if (user == null) return Unauthorized();
+            categoriaService.deleteIfUnused(gasto , user);
             _context.Gastos.Remove(gasto);
             
             await _context.SaveChangesAsync();

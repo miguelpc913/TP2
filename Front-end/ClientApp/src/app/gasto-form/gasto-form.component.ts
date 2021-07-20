@@ -76,7 +76,7 @@ export class GastoFormComponent implements OnInit {
             this.loading = false
           },
           () =>{
-            this.router.navigate(["/"])
+            this.router.navigate(["/gastos"])
             this.loading = false
           })
       }else{

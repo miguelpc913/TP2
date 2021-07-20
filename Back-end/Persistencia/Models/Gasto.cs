@@ -30,5 +30,9 @@ namespace Persistencia.Models
         
         [Required]
         public virtual Categoria categoria{get;set;}
+
+        [Required]
+        [ForeignKey("User")]
+        public int UserId {get;set;}
     }
 }

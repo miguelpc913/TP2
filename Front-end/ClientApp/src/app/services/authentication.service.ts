@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { Inject, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { Observable, Subscription  } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { User } from '../models/user';
 
@@ -8,48 +9,68 @@ import { User } from '../models/user';
   providedIn: 'root'
 })
 export class AuthenticationService {
+  
+  isLoggedIn : boolean = false;
 
-  private currentUserSubject: BehaviorSubject<User>;
-  public currentUser: Observable<User>;
+  constructor(private http: HttpClient , private router : Router ) {
+    this.authenticate();
+  }
 
+  
+  public authenticate () {
+    const token = JSON.parse(localStorage.getItem('authToken'));
+    if(token !== null){
+      this.isLoggedIn = true;
+      this.validateToken(token) 
+    }else{
+      this.isLoggedIn = false;
+    } 
+  }
 
-  constructor(private http: HttpClient,@Inject('BASE_URL') private baseUrl:string) { }
-
-  public login(userName: string, password: string) {
-    
-    const UsuarioApi: User= {
+  public login(userName: string, password: string) : Subscription {
+    const headers = {'Content-type' : 'application/json' }
+    const user: User= {
       username:userName,
       password:password,
-      token: "" 
+      token:""
     };
-    console.log(UsuarioApi)
-    // return this.http.post<any>(environment.apiUrlAuth, UsuarioApi)
-    //     .pipe(
-    //       map(respuesta => {
-    //           // store user details and jwt token in local storage to keep user logged in between page refreshes
-    //           console.log("Respuesta api: ",respuesta);
-    //           localStorage.setItem('UsuarioGuardado', JSON.stringify(respuesta));  
-    //           return respuesta;
-    //       })
-          
-    //     ); 
+    return this.http.post<any>(environment.apiUrlLogin + "authenticate", user, { headers })
+    .subscribe(
+      (response) => {
+        localStorage.setItem('authToken', JSON.stringify(response));
+        this.isLoggedIn = true;
+      },
+      e => {
+        this.logout()
+        }
+      )
+      
 }
 
   public logout() {
     // remove user from local storage to log user out
-    localStorage.removeItem('user');
+    this.isLoggedIn = false;
+    localStorage.removeItem('authToken');
   }
 
-  public isLoggedIn(){
-    let loggedIn : boolean = false;
-
-    var user = JSON.parse(localStorage.getItem('user'));
-    
-    if (user){
-      const token = user["token"];
-      console.log("ESTA LOGUEADO: ", token )
-      loggedIn=true;
+  public validateToken(token : string){
+    if (token){
+      this.http.get<any> (environment.apiUrlLogin + "ValidateToken" , ).subscribe(
+        (response) =>{
+          this.isLoggedIn = response;
+          if(!response) this.logout();
+        },
+        (error) =>{
+          this.logout()
+        }
+      )
     }
-    return loggedIn;
+  }
+
+  public validateTokenForGuard(){
+    const token = JSON.parse(localStorage.getItem('authToken'));
+    if (token){
+      return this.http.get<any> (environment.apiUrlLogin + "ValidateToken" , );
+    }
   }
 }

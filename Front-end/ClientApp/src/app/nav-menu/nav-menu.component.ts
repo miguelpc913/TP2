@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AuthenticationService } from '../services/authentication.service';
 
 
 @Component({
@@ -8,7 +9,8 @@ import { Component } from '@angular/core';
 })
 export class NavMenuComponent {
   isExpanded = false;
-  isLoggedIn = true;
+
+  constructor(private auth : AuthenticationService){}
 
   collapse() {
     this.isExpanded = false;

@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule , ReactiveFormsModule} from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { AppComponent } from './app.component';
@@ -14,6 +14,7 @@ import { ErrorModalComponent } from './error-modal/error-modal.component';
 import { UserGuardGuard } from './user-guard.guard';
 import { SignUpComponent } from './sign-up/sign-up.component';
 import { UserFormComponent } from './user-form/user-form.component';
+import { InterceptorService } from './services/interceptor.service';
 
 
 @NgModule({
@@ -41,7 +42,9 @@ import { UserFormComponent } from './user-form/user-form.component';
       { path: 'sign-up', component: SignUpComponent, pathMatch: 'full' },
     ])
   ],
-  providers: [],
+  providers: [ 
+    {provide: HTTP_INTERCEPTORS , useClass: InterceptorService , multi:true} ,
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
