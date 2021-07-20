@@ -19,6 +19,7 @@ export class UserFormComponent implements OnInit {
   invalidMessage : String;
   used : boolean;
   error : string;
+  errorRequest;
   
   constructor(private fb : FormBuilder, 
               private router : Router , 
@@ -54,7 +55,11 @@ export class UserFormComponent implements OnInit {
                 if(this.auth.isLoggedIn){
                   this.router.navigate(["/gastos"])
                 } else{
-                  this.error = "Usuario o contraseña incorrecta.";
+                  if(this.auth.error.status === 401){
+                    this.error = "Usuario o contraseña incorrecta.";
+                  }else{
+                    this.errorRequest = this.auth.error;
+                  }
                 }
               }
             )
@@ -70,16 +75,24 @@ export class UserFormComponent implements OnInit {
                   this.signUp.createUser(username, response).
                   subscribe(
                     () => this.router.navigate(["/"]),
-                    (e) => console.log(e),
+                    (e) => this.errorRequest = e,
                   )
-                },
-                (e) => console.log(e)
+                }
               )
             }else{
               this.error = "Usuario usado";
             }
+          },
+          (e) => {
+            this.errorRequest = e;
           }
         )
       }
   }
+
+  private closeErrorModal(){
+    this.errorRequest = undefined;
+  }
+
 }
+

@@ -38,3 +38,5 @@
         </div>
     </div>
 </div>
+
+<app-error-modal *ngIf="errorRequest" [errorTitle]="errorRequest.title" [errorMessage]="errorRequest.message" [errorStatus]="errorRequest.status" (closeErrorModal)="closeErrorModal()"></app-error-modal>

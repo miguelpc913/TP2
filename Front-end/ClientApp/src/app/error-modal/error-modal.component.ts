@@ -18,6 +18,11 @@ export class ErrorModalComponent implements OnInit {
     if(this.errorStatus === 401){
       this.router.navigate(["/"] , { queryParams: { cause : "unauthorized"}})
     }
+
+    if(this.errorStatus === 0){
+      this.errorTitle = "No se pudo conectar con el servidor";
+      this.errorMessage = "Por favor revise su conexion"
+    }
   }
 
   private closeModal (){

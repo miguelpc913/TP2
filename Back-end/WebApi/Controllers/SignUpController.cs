@@ -27,27 +27,11 @@ namespace WebApi.Controllers
             return await _context.Users.ToListAsync();
         }
 
-        // // GET: api/SignUp/5
-        // [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return user;
-        }
-
         [HttpPost("username-used")]
         public bool usernameIsUsed(User userCred)
         {
             return _context.Users.Any( user => user.Username.Equals(userCred.Username));
         }
-
-
 
         // POST: api/SignUp
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -57,12 +41,7 @@ namespace WebApi.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
-        }
-
-        private bool UserExists(int id)
-        {
-            return _context.Users.Any(e => e.Id == id);
+            return Ok();
         }
     }
 }

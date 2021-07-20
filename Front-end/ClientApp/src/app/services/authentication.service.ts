@@ -11,6 +11,7 @@ import { User } from '../models/user';
 export class AuthenticationService {
   
   isLoggedIn : boolean = false;
+  error;
 
   constructor(private http: HttpClient , private router : Router ) {
     this.authenticate();
@@ -42,6 +43,7 @@ export class AuthenticationService {
       },
       e => {
         this.logout()
+        this.error = e;
         }
       )
       
